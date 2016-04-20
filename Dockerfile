@@ -20,7 +20,7 @@ VOLUME /config
 EXPOSE 6060 6061
 
 RUN apt-get update && \
-    apt-get install -y bzr rpm xz-utils && \
+    apt-get install -y bzr rpm xz-utils supervisor && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* # 18MAR2016
@@ -30,7 +30,7 @@ RUN go get github.com/coreos/clair/cmd/clair
 
 RUN go install -v github.com/coreos/clair/cmd/clair
 
-ADD run.sh run.sh
+ADD supervisord.conf supervisord.conf
 
-ENTRYPOINT ["./run.sh"]
-CMD ["config.yaml"]
+ENTRYPOINT ["supervisord", "-c"]
+CMD ["supervisord.conf"]
