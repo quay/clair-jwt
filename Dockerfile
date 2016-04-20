@@ -12,23 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.6
+FROM quay.io/coreos/clair:v1.1.0
 
 MAINTAINER Quentin Machu <quentin.machu@coreos.com>
 
-VOLUME /config
-EXPOSE 6060 6061
-
 RUN apt-get update && \
-    apt-get install -y bzr rpm xz-utils supervisor && \
+    apt-get install -y supervisor && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* # 18MAR2016
 
 ADD ./binary_dependencies/jwtproxy /usr/bin/jwtproxy
-RUN go get github.com/coreos/clair/cmd/clair
-
-RUN go install -v github.com/coreos/clair/cmd/clair
 
 ADD supervisord.conf supervisord.conf
 
