@@ -12,19 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM quay.io/coreos/clair:v1.1.0
-
+FROM golang:1.6
 MAINTAINER Quentin Machu <quentin.machu@coreos.com>
 
+VOLUME /config
+EXPOSE 6060 6061
+
 RUN apt-get update && \
-    apt-get install -y supervisor && \
+    apt-get install -y bzr rpm xz-utils supervisor && \
     apt-get autoremove -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* # 18MAR2016
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* # 26APRIL2016
 
-ADD ./binary_dependencies/jwtproxy /usr/bin/jwtproxy
+RUN go get -u github.com/cloudflare/cfssl/cmd/cfssl
+RUN go get -u github.com/cloudflare/cfssl/cmd/cfssljson
+RUN go get -u github.com/coreos/jwtproxy/cmd/jwtproxy
+RUN go get -u github.com/coreos/clair/cmd/clair
 
-ADD supervisord.conf supervisord.conf
+ADD generate_mitm_ca.sh /generate_mitm_ca.sh
+ADD supervisord.conf /supervisord.conf
 
 ENTRYPOINT ["supervisord", "-c"]
-CMD ["supervisord.conf"]
+CMD ["/supervisord.conf"]
