@@ -26,7 +26,7 @@ RUN apt-get update && \
 
 RUN go get -u github.com/cloudflare/cfssl/cmd/cfssl
 RUN go get -u github.com/cloudflare/cfssl/cmd/cfssljson
-RUN go get -u github.com/coreos/jwtproxy/cmd/jwtproxy
+RUN go get -u github.com/coreos/jwtproxy/cmd/jwtproxy # 03MAY2016
 RUN go get -u github.com/coreos/clair/cmd/clair
 
 ADD generate_mitm_ca.sh /generate_mitm_ca.sh
