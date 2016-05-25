@@ -33,5 +33,4 @@ ADD generate_mitm_ca.sh /generate_mitm_ca.sh
 ADD boot.sh /boot.sh
 ADD supervisord.conf /supervisord.conf
 
-ENTRYPOINT ["supervisord", "-c"]
-CMD ["/supervisord.conf"]
+CMD ["/boot.sh"]
