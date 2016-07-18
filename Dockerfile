@@ -22,12 +22,13 @@ RUN apt-get update && \
     apt-get install -y bzr rpm xz-utils supervisor && \
     apt-get autoremove -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* # 26APRIL2016
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* # 18JUL2016
 
 RUN go get -u github.com/cloudflare/cfssl/cmd/cfssl
 RUN go get -u github.com/cloudflare/cfssl/cmd/cfssljson
-RUN go get -u github.com/coreos/jwtproxy/cmd/jwtproxy #03MAY2016
+RUN go get -u github.com/coreos/jwtproxy/cmd/jwtproxy # 18JUL2016
 RUN go get -u github.com/coreos/clair/cmd/clair
+RUN cd /go/src/github.com/coreos/clair && git checkout v1.2.3 && go install github.com/coreos/clair/cmd/clair
 
 ADD generate_mitm_ca.sh /generate_mitm_ca.sh
 ADD boot.sh /boot.sh
