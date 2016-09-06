@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.6
+FROM golang:1.7
 MAINTAINER Quentin Machu <quentin.machu@coreos.com>
 
 VOLUME /config
@@ -22,13 +22,13 @@ RUN apt-get update && \
     apt-get install -y bzr rpm xz-utils supervisor && \
     apt-get autoremove -y && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* # 18JUL2016
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* # 06SEP2016
 
 RUN go get -u github.com/cloudflare/cfssl/cmd/cfssl
 RUN go get -u github.com/cloudflare/cfssl/cmd/cfssljson
-RUN go get -u github.com/coreos/jwtproxy/cmd/jwtproxy # 18JUL2016
+RUN go get -u github.com/coreos/jwtproxy/cmd/jwtproxy # 06SEP2016
 RUN go get -u github.com/coreos/clair/cmd/clair
-RUN cd /go/src/github.com/coreos/clair && git checkout v1.2.3 && go install github.com/coreos/clair/cmd/clair
+RUN cd /go/src/github.com/coreos/clair && git checkout v1.2.4 && go install github.com/coreos/clair/cmd/clair
 
 ADD generate_mitm_ca.sh /generate_mitm_ca.sh
 ADD boot.sh /boot.sh
