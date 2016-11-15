@@ -28,7 +28,7 @@ RUN go get -u github.com/cloudflare/cfssl/cmd/cfssl
 RUN go get -u github.com/cloudflare/cfssl/cmd/cfssljson
 RUN go get -u github.com/coreos/jwtproxy/cmd/jwtproxy # 06SEP2016
 RUN go get -u github.com/coreos/clair/cmd/clair
-RUN cd /go/src/github.com/coreos/clair && git checkout v1.2.5 && go install github.com/coreos/clair/cmd/clair
+RUN cd /go/src/github.com/coreos/clair && git checkout v1.2.6 && go install github.com/coreos/clair/cmd/clair
 
 ADD generate_mitm_ca.sh /generate_mitm_ca.sh
 ADD boot.sh /boot.sh
