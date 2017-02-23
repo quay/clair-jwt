@@ -1,4 +1,4 @@
-# Copyright 2015 clair authors
+# Copyright 2017 clair authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,26 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.7
-MAINTAINER Quentin Machu <quentin.machu@coreos.com>
+FROM golang:1.8-alpine
+MAINTAINER Jimmy Zelinskie <jimmy.zelinskie@coreos.com>
 
 VOLUME /config
 EXPOSE 6060 6061
+ARG GIT_TAG
 
-RUN apt-get update && \
-    apt-get install -y bzr rpm xz-utils supervisor && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* # 06SEP2016
-
-RUN go get -u github.com/cloudflare/cfssl/cmd/cfssl
-RUN go get -u github.com/cloudflare/cfssl/cmd/cfssljson
-RUN go get -u github.com/coreos/jwtproxy/cmd/jwtproxy # 06SEP2016
-RUN go get -u github.com/coreos/clair/cmd/clair
-RUN cd /go/src/github.com/coreos/clair && git checkout v1.2.6 && go install github.com/coreos/clair/cmd/clair
+RUN apk add --no-cache git bzr rpm xz supervisor gcc musl-dev && \
+    go get -u github.com/cloudflare/cfssl/cmd/cfssl && \
+    go get -u github.com/cloudflare/cfssl/cmd/cfssljson && \
+    apk del gcc && \
+    go get -u github.com/coreos/jwtproxy/cmd/jwtproxy && \
+    go get -u -d github.com/coreos/clair/cmd/clair && \
+    cd /go/src/github.com/coreos/clair && \
+    git checkout $GIT_TAG && \
+    go install github.com/coreos/clair/cmd/clair && \
+    rm -rf /usr/local/go $GOPATH/src $GOPATH/pkg # 22FEB2017
 
 ADD generate_mitm_ca.sh /generate_mitm_ca.sh
 ADD boot.sh /boot.sh
 ADD supervisord.conf /supervisord.conf
 
-CMD ["/boot.sh"]
+CMD ["sh", "/boot.sh"]
