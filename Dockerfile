@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.8-alpine
+FROM golang:1.10-alpine
 MAINTAINER Jimmy Zelinskie <jimmy.zelinskie@coreos.com>
 
 VOLUME /config
