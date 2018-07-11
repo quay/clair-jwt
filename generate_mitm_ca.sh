@@ -10,6 +10,6 @@ cp mitm.pem /usr/local/share/ca-certificates/mitm.crt
 
 # This directory is for any custom certificates users want to mount
 mkdir -p /certs
-cp /certs/* /usr/local/share/ca-certificates
+cp /certs/* /usr/local/share/ca-certificates || true
 
 update-ca-certificates --fresh
