@@ -13,12 +13,13 @@
 # limitations under the License.
 
 ARG GIT_TAG
-FROM clair-jwt:${GIT_TAG}-centos7-build-env AS build-env
+ARG REPO_NAME
+FROM ${REPO_NAME}:${GIT_TAG}-centos7-build-env AS build-env
 FROM centos:7
 LABEL maintainer "Sida Chen <sidchen@redhat.com>"
 
 # Install init system and Clair depended binaries
-RUN yum install -y python-setuptools git rpm xz
+RUN yum install -y --setopt=tsflags=nodocs --setopt=skip_missing_names_on_install=False python-setuptools git rpm xz
 RUN rpm --version | grep -q 'version 4' # ensure rpm is version 4
 RUN easy_install supervisor
 

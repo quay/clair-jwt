@@ -33,7 +33,7 @@ ENV PATH=$PATH:/usr/local/go/bin:${GOPATH}/bin
 RUN go version
 
 # Install dependencies
-RUN yum install -y git hg svn bzr gcc
+RUN yum install -y --setopt=tsflags=nodocs --setopt=skip_missing_names_on_install=False git hg svn bzr gcc
 
 ENV CFSSL_VERSION=1.3.2
 RUN go get -u github.com/cloudflare/cfssl/cmd/cfssl
