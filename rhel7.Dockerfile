@@ -27,7 +27,7 @@ RUN subscription-manager import --certificate=/tmp/${SUBSCRIPTION_KEY}
 RUN rm -f /tmp/${SUBSCRIPTION_KEY}
 
 # Install init system and Clair depended binaries
-RUN yum install -y --setopt=tsflags=nodocs --setopt=skip_missing_names_on_install=False python-setuptools git rpm xz
+RUN yum install -y --setopt=tsflags=nodocs --setopt=skip_missing_names_on_install=False python-setuptools git rpm xz sudo
 RUN rpm --version | grep -q 'version 4' # ensure rpm is version 4
 RUN easy_install supervisor
 
@@ -49,4 +49,8 @@ VOLUME /config
 VOLUME /certs
 EXPOSE 6060 6061
 
-CMD ["sh", "/boot.sh"]
+RUN adduser username -u 1000 -G wheel
+ADD sudoers.txt /etc/sudoers
+USER username:wheel
+
+CMD ["sudo", "sh", "/boot.sh"]
