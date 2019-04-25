@@ -10,7 +10,7 @@ cp mitm.pem /etc/pki/ca-trust/source/anchors/mitm.crt
 
 # This directory is for any custom certificates users want to mount
 echo "Copying custom certs to trust"
-ls /certs/ || true
-cp /certs/* /etc/pki/ca-trust/source/anchors/ || true
+ls $CLAIRDIR/certs/ || true
+cp $CLAIRDIR/certs/* /etc/pki/ca-trust/source/anchors/ || true
 
 update-ca-trust extract
