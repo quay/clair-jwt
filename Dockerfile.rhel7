@@ -1,0 +1,74 @@
+ARG GIT_TAG
+ARG REPO_NAME
+FROM ${REPO_NAME}:${GIT_TAG}-centos7-build-env AS build-env
+FROM registry.redhat.io/rhel7:7.6
+LABEL maintainer "thomasmckay@redhat.com"
+
+ENV CLAIRDIR /clair
+ENV CLAIRCONF /clair/config
+
+RUN mkdir $CLAIRDIR
+WORKDIR $CLAIRDIR
+
+# Red Hat subscription entitlement
+#
+ARG SUBSCRIPTION_KEY
+ADD ${SUBSCRIPTION_KEY} /tmp/
+RUN subscription-manager import --certificate=/tmp/${SUBSCRIPTION_KEY} && \
+    rm -f /tmp/${SUBSCRIPTION_KEY}
+
+RUN INSTALL_PKGS="\
+        python-setuptools \
+        git \
+        rpm \
+        xz \
+        " && \
+    rm /etc/rhsm-host && \
+    yum install -y yum-utils && \
+    yum-config-manager --quiet --disable "*" >/dev/null && \
+    yum-config-manager --quiet --enable \
+        rhel-7-server-rpms \
+        --save >/dev/null && \
+    yum -y --setopt=tsflags=nodocs --setopt=skip_missing_names_on_install=False install $INSTALL_PKGS && \
+    yum -y update && \
+    yum -y clean all
+
+RUN easy_install supervisor && \
+    easy_install pip && \
+    pip install supervisor-stdout
+
+# Copy built binaries into the runtime image
+COPY --from=build-env /go/bin/cfssl /usr/local/bin/cfssl
+COPY --from=build-env /go/bin/cfssljson /usr/local/bin/cfssljson
+COPY --from=build-env /go/bin/clair /usr/local/bin/clair
+COPY --from=build-env /go/bin/jwtproxy /usr/local/bin/jwtproxy
+
+# Add the init scripts
+ADD generate_mitm_ca.rhel.sh $CLAIRDIR/generate_mitm_ca.sh
+ADD clair-entrypoint.sh $CLAIRDIR/clair-entrypoint.sh
+ADD supervisord.conf $CLAIRDIR/supervisord.conf
+
+# Cleanup
+RUN yum clean all && \
+    rm -rf /etc/pki/entitlement /etc/rhsm && \
+    rm -rf /var/cache/yum /tmp/* /var/tmp/* /root/.cache
+
+# Remove subscription key
+RUN subscription-manager remove --all
+
+RUN chgrp -R 0 $CLAIRDIR && \
+    chmod -R g=u $CLAIRDIR
+
+RUN mkdir -p /tmp && chgrp 0 /tmp && chmod g=u /tmp && \
+    chmod g=u /etc/passwd
+
+EXPOSE 6060 6061
+
+VOLUME ["/clair/config", "/clair/certs"]
+
+ENTRYPOINT ["/clair/clair-entrypoint.sh"]
+CMD ["scanner"]
+
+# root required to create and install certs
+# https://jira.coreos.com/browse/QUAY-1468
+# USER 1001
