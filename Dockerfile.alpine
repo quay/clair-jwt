@@ -46,6 +46,7 @@ COPY --from=build-env /go/bin/jwtproxy /usr/local/bin/jwtproxy
 ADD generate_mitm_ca.sh /generate_mitm_ca.sh
 ADD boot.sh /boot.sh
 ADD supervisord.conf /supervisord.conf
+ADD supervisord-debug.conf /supervisord-debug.conf
 
 VOLUME /config
 EXPOSE 6060 6061
