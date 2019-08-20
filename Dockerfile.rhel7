@@ -49,12 +49,14 @@ ADD clair-entrypoint.sh $CLAIRDIR/clair-entrypoint.sh
 ADD supervisord.conf $CLAIRDIR/supervisord.conf
 
 # Cleanup
-RUN yum clean all && \
-    rm -rf /etc/pki/entitlement /etc/rhsm && \
-    rm -rf /var/cache/yum /tmp/* /var/tmp/* /root/.cache
+RUN yum clean all
 
 # Remove subscription key
 RUN subscription-manager remove --all
+
+# Cleanup
+RUN rm -rf /etc/pki/entitlement /etc/rhsm && \
+    rm -rf /var/cache/yum /tmp/* /var/tmp/* /root/.cache
 
 RUN chgrp -R 0 $CLAIRDIR && \
     chmod -R g=u $CLAIRDIR
