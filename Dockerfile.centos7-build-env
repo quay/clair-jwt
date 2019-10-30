@@ -19,11 +19,11 @@ ARG GIT_TAG
 RUN test -n "$GIT_TAG" # Expect Clair GIT TAG to be non-empty.
 
 # Install Golang by retrieving the binary
-ENV GO_VERSION=1.11.5
+ENV GO_VERSION=1.13.3
 ENV GO_OS=linux
 ENV GO_ARC=amd64
 RUN curl https://dl.google.com/go/go${GO_VERSION}.${GO_OS}-${GO_ARC}.tar.gz --output go.tar.gz
-RUN echo ff54aafedff961eb94792487e827515da683d61a5f9482f668008832631e5d25 go.tar.gz > GOCHECKSUM
+RUN echo 0804bf02020dceaa8a7d7275ee79f7a142f1996bfd0c39216ccb405f93f994c0 go.tar.gz > GOCHECKSUM
 RUN sha256sum -c GOCHECKSUM
 RUN tar -C /usr/local -xzf go.tar.gz > /dev/null
 ENV GOPATH=/go
@@ -35,7 +35,7 @@ RUN go version
 # Install dependencies
 RUN yum install -y --setopt=tsflags=nodocs --setopt=skip_missing_names_on_install=False git hg svn bzr gcc
 
-ENV CFSSL_VERSION=1.3.2
+ENV CFSSL_VERSION=1.3.4
 RUN go get -u github.com/cloudflare/cfssl/cmd/cfssl
 WORKDIR /go/src/github.com/cloudflare/cfssl
 RUN git checkout ${CFSSL_VERSION}
