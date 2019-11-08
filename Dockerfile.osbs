@@ -1,0 +1,71 @@
+FROM openshift/golang-builder:1.12 AS builder
+
+ENV PATH "$PATH:/go/bin"
+ENV GOPATH="/go"
+ENV GOBIN="/go/bin"
+
+COPY clair-jwt.tar.gz /tmp
+RUN cd /tmp && \
+    tar xf clair-jwt.tar.gz
+
+COPY jwtproxy.tar.gz /tmp
+RUN cd /tmp && \
+    tar xf jwtproxy.tar.gz && \
+    mkdir -p /go/src/github.com/coreos/jwtproxy && \
+    mv jwtproxy/* /go/src/github.com/coreos/jwtproxy && \
+    go install github.com/coreos/jwtproxy/cmd/jwtproxy
+
+COPY clair.tar.gz /tmp
+RUN cd /tmp && \
+    tar xf clair.tar.gz && \
+    mkdir -p /go/src/github.com/coreos/clair && \
+    mv clair/* /go/src/github.com/coreos/clair && \
+    go install github.com/coreos/clair/cmd/clair
+
+
+FROM ubi7:7-released
+
+LABEL com.redhat.component="quay"
+LABEL name="quay/clair-jwt"
+LABEL version="v3.2.0"
+LABEL io.k8s.display-name="Red Hat Quay - Clair"
+LABEL io.k8s.description="Red Hat Quay container image scanner"
+LABEL summary="Red Hat Quay container image scanner"
+LABEL maintainer "thomasmckay@redhat.com"
+
+ENV CLAIRDIR /clair
+ENV CLAIRCONF /clair/config
+
+RUN mkdir $CLAIRDIR
+WORKDIR $CLAIRDIR
+
+COPY --from=builder /go/bin/jwtproxy /bin/jwtproxy
+COPY --from=builder /go/bin/clair /bin/clair
+COPY --from=builder /tmp/clair-jwt/clair-entrypoint.sh $CLAIRDIR/clair-entrypoint.sh
+COPY --from=builder /tmp/clair-jwt/supervisord.conf $CLAIRDIR/supervisord.conf
+COPY --from=builder /tmp/clair-jwt/generate_mitm_ca.sh $CLAIRDIR/generate_mitm_ca.sh
+
+RUN INSTALL_PKGS="\
+        python2-supervisor \
+        python2-supervisor-stdout \
+        python-meld3 \
+        openssl \
+        git \
+        rpm \
+        xz \
+        " && \
+    yum -y --setopt=tsflags=nodocs --setopt=skip_missing_names_on_install=False install $INSTALL_PKGS
+
+
+RUN chgrp -R 0 $CLAIRDIR && \
+    chmod -R g=u $CLAIRDIR
+
+RUN mkdir -p /tmp && chgrp 0 /tmp && chmod g=u /tmp && \
+    chmod g=u /etc/passwd
+
+EXPOSE 6060 6061
+
+VOLUME ["/clair/config", "/clair/certs"]
+
+ENTRYPOINT ["/clair/clair-entrypoint.sh"]
+CMD ["scanner"]
