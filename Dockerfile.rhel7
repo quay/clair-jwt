@@ -44,7 +44,7 @@ COPY --from=build-env /go/bin/clair /usr/local/bin/clair
 COPY --from=build-env /go/bin/jwtproxy /usr/local/bin/jwtproxy
 
 # Add the init scripts
-ADD generate_mitm_ca.rhel.sh $CLAIRDIR/generate_mitm_ca.sh
+ADD generate_mitm_ca.sh $CLAIRDIR/generate_mitm_ca.sh
 ADD clair-entrypoint.sh $CLAIRDIR/clair-entrypoint.sh
 ADD supervisord.conf $CLAIRDIR/supervisord.conf
 

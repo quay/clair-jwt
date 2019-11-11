@@ -30,7 +30,7 @@ COPY --from=build-env /go/bin/jwtproxy /usr/local/bin/jwtproxy
 COPY --from=build-env /go/bin/clair /usr/local/bin/clair
 
 # Add the init scripts
-ADD generate_mitm_ca.rhel.sh /generate_mitm_ca.sh
+ADD generate_mitm_ca.sh /generate_mitm_ca.sh
 ADD boot.sh /boot.sh
 ADD supervisord.conf /supervisord.conf
 
