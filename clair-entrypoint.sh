@@ -44,7 +44,7 @@ case "$CLAIRENTRY" in
     "scanner")
         echo "Running scanner"
         /bin/sh ${CLAIRDIR}/generate_mitm_ca.sh
-        supervisord -c ${CLAIRDIR}/supervisord.conf 2>&1
+        exec supervisord -c ${CLAIRDIR}/supervisord.conf 2>&1
         ;;
     *)
         echo "Running '$CLAIRENTRY'"
