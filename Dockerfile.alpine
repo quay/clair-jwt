@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM golang:1.10-alpine AS build-env
+FROM golang:1.13-alpine AS build-env
 LABEL maintainer "Jimmy Zelinskie <jimi@redhat.com>"
 
 ARG GIT_TAG
@@ -25,13 +25,18 @@ RUN go get -u github.com/cloudflare/cfssl/cmd/cfssljson
 RUN go get -u github.com/coreos/jwtproxy/cmd/jwtproxy
 
 # Build clair
-RUN go get -u -d github.com/coreos/clair/cmd/clair
-WORKDIR /go/src/github.com/coreos/clair
-RUN git checkout $GIT_TAG
-RUN go install github.com/coreos/clair/cmd/clair
+run git clone -b $GIT_TAG https://github.com/quay/clair /go/clair/
+WORKDIR /go/clair/
+RUN export CLAIR_VERSION=$(git describe --always --tags --dirty) && \
+    go install -ldflags "-X github.com/quay/clair/v2/pkg/version.Version=$CLAIR_VERSION" -v ./cmd/clair
 
-FROM alpine:3.7 AS runtime-env
+FROM alpine:3.11 AS runtime-env
 LABEL maintainer "Jimmy Zelinskie <jimi@redhat.com>"
+
+ENV CLAIRDIR /clair
+ENV CLAIRCONF /clair/config
+RUN mkdir $CLAIRDIR
+WORKDIR $CLAIRDIR
 
 RUN apk add --no-cache supervisor ca-certificates \
                        git bzr rpm xz
@@ -43,11 +48,18 @@ COPY --from=build-env /go/bin/clair /usr/local/bin/clair
 COPY --from=build-env /go/bin/jwtproxy /usr/local/bin/jwtproxy
 
 # Add the init scripts
-ADD generate_mitm_ca.sh /generate_mitm_ca.sh
-ADD boot.sh /boot.sh
-ADD supervisord.conf /supervisord.conf
+ADD generate_mitm_ca.sh $CLAIRDIR/generate_mitm_ca.sh
+ADD clair-entrypoint.sh $CLAIRDIR/clair-entrypoint.sh
+ADD supervisord.conf $CLAIRDIR/supervisord.conf
 
-VOLUME /config
+RUN chgrp -R 0 $CLAIRDIR && \
+    chmod -R g=u $CLAIRDIR
+
+RUN mkdir -p /tmp && chgrp 0 /tmp && chmod g=u /tmp && \
+    chmod g=u /etc/passwd
+
+VOLUME ["/clair/config", "/clair/certs"]
 EXPOSE 6060 6061
 
-CMD ["sh", "/boot.sh"]
+ENTRYPOINT ["/clair/clair-entrypoint.sh"]
+CMD ["scanner"]
