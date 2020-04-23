@@ -1,4 +1,5 @@
-#! /bin/sh
+#!/bin/sh
+
 set -e
 
 # Generate a MITM certificate and key
