@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 CLAIRENTRY=${CLAIRENTRY:=$1}
 CLAIRENTRY=${CLAIRENTRY:=scanner}
@@ -39,11 +39,11 @@ EOF
 case "$CLAIRENTRY" in
     "shell")
         echo "Entering shell mode"
-        exec /bin/bash
+        exec /bin/sh
         ;;
     "scanner")
         echo "Running scanner"
-        /bin/bash ${CLAIRDIR}/generate_mitm_ca.sh
+        /bin/sh ${CLAIRDIR}/generate_mitm_ca.sh
         supervisord -c ${CLAIRDIR}/supervisord.conf 2>&1
         ;;
     *)
