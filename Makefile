@@ -6,7 +6,7 @@ centos7-build-env: Dockerfile.centos7-build-env
 	echo "Building Clair build environment with tag: '${REPO_NAME}:${GIT_TAG}-centos7-build-env'"
 	docker build -f Dockerfile.centos7-build-env -t ${REPO_NAME}:${GIT_TAG}-centos7-build-env . --build-arg GIT_TAG=${GIT_TAG}
 
-centos7: Dockerfile.centos7
+centos7: centos7-build-env Dockerfile.centos7
 	echo "Building CentOS based image with tag: '${REPO_NAME}:${GIT_TAG}-centos7'"
 	docker build -f Dockerfile.centos7 -t ${REPO_NAME}:${GIT_TAG}-centos7 . --build-arg GIT_TAG=${GIT_TAG} --build-arg REPO_NAME=${REPO_NAME}
 
