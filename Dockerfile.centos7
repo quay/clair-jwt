@@ -16,7 +16,7 @@ ARG GIT_TAG
 ARG REPO_NAME
 FROM ${REPO_NAME}:${GIT_TAG}-centos7-build-env AS build-env
 FROM centos:7
-LABEL maintainer "Sida Chen <sidchen@redhat.com>"
+LABEL maintainer "quay-sig@googlegroups.com"
 
 ENV CLAIRDIR /clair
 ENV CLAIRCONF /clair/config

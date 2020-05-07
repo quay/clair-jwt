@@ -1,5 +1,5 @@
-GIT_TAG ?= v2.0.8
-REPO_NAME ?= quay.io/coreos/clair-jwt
+GIT_TAG ?= v2.1.3
+REPO_NAME ?= quay.io/projectquay/clair-jwt
 SUBSCRIPTION_KEY ?= ./subscription.pem
 
 centos7-build-env: Dockerfile.centos7-build-env
