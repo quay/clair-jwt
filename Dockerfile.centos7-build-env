@@ -13,7 +13,7 @@
 # limitations under the License.
 
 FROM centos:7
-LABEL maintainer "Sida Chen <sidchen@redhat.com>"
+LABEL maintainer "quay-sig@googlegroups.com"
 
 ARG GIT_TAG
 RUN test -n "$GIT_TAG" # Expect Clair GIT TAG to be non-empty.
