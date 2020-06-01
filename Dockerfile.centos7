@@ -26,6 +26,7 @@ WORKDIR $CLAIRDIR
 RUN yum install -y --setopt=tsflags=nodocs --setopt=skip_missing_names_on_install=False python-setuptools git rpm xz
 RUN rpm --version | grep -q 'version 4' # ensure rpm is version 4
 RUN easy_install supervisor
+RUN yum remove -y kernel-headers
 
 # Copy built binaries into the runtime image
 COPY --from=build-env /go/bin/cfssl /usr/local/bin/cfssl
