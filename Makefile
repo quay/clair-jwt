@@ -1,4 +1,4 @@
-GIT_TAG ?= v2.1.3
+GIT_TAG ?= v2.1.4
 REPO_NAME ?= quay.io/projectquay/clair-jwt
 SUBSCRIPTION_KEY ?= ./subscription.pem
 
